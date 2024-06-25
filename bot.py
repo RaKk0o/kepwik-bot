@@ -2,18 +2,16 @@ import discord
 from discord.ext import commands, tasks
 import requests
 from bs4 import BeautifulSoup
-import os
 
 # Ton token de bot Discord
-TOKEN = os.getenv("DISCORD_TOKEN")
-XIVAPI_KEY = os.getenv("XIVAPI_KEY")
-CHANNEL_ID = "1250809808429514868"
+TOKEN = 'ton_token_discord'
+CHANNEL_ID = 123456789012345678  # Remplace par l'ID du canal où tu veux envoyer les news
 
+# Spécifier les intentions
 intents = discord.Intents.default()
 intents.message_content = True
-intents.members = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 # URL de la section des news en français sur le site Lodestone
 LODSTONE_NEWS_URL = 'https://fr.finalfantasyxiv.com/lodestone/news/'
@@ -29,13 +27,14 @@ async def on_ready():
 def get_latest_news():
     response = requests.get(LODSTONE_NEWS_URL)
     soup = BeautifulSoup(response.content, 'html.parser')
-    news_items = soup.find_all('li', class_='news__list--news')
+    news_items = soup.find_all('li', class_='news__list--article')
 
     latest_news = []
     for item in news_items:
-        news_id = item.find('a')['href'].split('/')[-1]
+        link_tag = item.find('a')
+        news_id = link_tag['href'].split('/')[-1]
         title = item.find('p', class_='news__list--title').text.strip()
-        link = f"https://fr.finalfantasyxiv.com{item.find('a')['href']}"
+        link = f"https://fr.finalfantasyxiv.com{link_tag['href']}"
         latest_news.append((news_id, title, link))
 
     return latest_news
