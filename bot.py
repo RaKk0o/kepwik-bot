@@ -60,11 +60,16 @@ def get_latest_news():
 
 async def send_news_embed(channel, news):
     for news_id, tag, title, summary, link, image, date in news:
-        embed = discord.Embed(title=title, description=summary, url=link, timestamp=datetime.strptime(date, '%d.%m.%Y') if date else None)
+        embed = discord.Embed(title=title, description=summary, url=link)
         embed.set_author(name=tag)
         if image:
             embed.set_image(url=image)
-        embed.set_footer(text=f"Publié le {date}" if date else "Date non disponible")
+        if date and date != '-':
+            date_obj = datetime.strptime(date, '%d.%m.%Y')
+            embed.timestamp = date_obj
+            embed.set_footer(text=f"Publié le {date_obj.strftime('%d %b %Y %H:%M')}")
+        else:
+            embed.set_footer(text="Date non disponible")
         await channel.send(embed=embed)
 
 @tasks.loop(minutes=10)
