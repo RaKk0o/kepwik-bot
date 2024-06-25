@@ -46,11 +46,24 @@ def get_latest_news():
                 if link_tag:
                     link = f"https://fr.finalfantasyxiv.com{link_tag['href']}"
                     news_id = link.split('/')[-1]
-                    latest_news.append((news_id, title, link))
+                    # Extrait le résumé et l'image ici, si disponible
+                    summary = item.find_next('div', class_='news__list--content').text.strip() if item.find_next('div', class_='news__list--content') else "Pas de résumé disponible."
+                    image = item.find_next('img')['src'] if item.find_next('img') else None
+                    date = item.find_next('time')['datetime'] if item.find_next('time') else None
+                    latest_news.append((news_id, tag.text.strip('[]'), title, summary, link, image, date))
         except AttributeError:
             continue  # Ignore les éléments mal formés
 
     return latest_news
+
+async def send_news_embed(channel, news):
+    for news_id, tag, title, summary, link, image, date in news:
+        embed = discord.Embed(title=title, description=summary, url=link, timestamp=datetime.fromisoformat(date) if date else None)
+        embed.set_author(name=tag)
+        if image:
+            embed.set_image(url=image)
+        embed.set_footer(text=f"Publié le {datetime.fromisoformat(date).strftime('%d %b %Y %H:%M')}" if date else "Date non disponible")
+        await channel.send(embed=embed)
 
 @tasks.loop(minutes=10)
 async def check_news():
@@ -61,15 +74,19 @@ async def check_news():
     if not latest_news:
         return
 
-    latest_news_id, title, link = latest_news[0]
-
     if last_news_id is None:
-        last_news_id = latest_news_id
+        last_news_id = latest_news[0][0]
         return
 
-    if latest_news_id != last_news_id:
-        last_news_id = latest_news_id
-        await channel.send(f"Nouvelle news sur Lodestone: {title}\n{link}")
+    new_news = []
+    for news in latest_news:
+        if news[0] == last_news_id:
+            break
+        new_news.append(news)
+
+    if new_news:
+        last_news_id = new_news[0][0]
+        await send_news_embed(channel, new_news)
 
 @bot.command()
 async def ping(ctx):
@@ -82,11 +99,6 @@ async def news(ctx):
         await ctx.send("Aucune nouvelle trouvée.")
         return
     
-    news_message = "Voici les 5 dernières nouvelles sur Lodestone :\n\n"
-    for news in latest_news[:5]:
-        news_id, title, link = news
-        news_message += f"{title}\n{link}\n\n"
-    
-    await ctx.send(news_message)
+    await send_news_embed(ctx.channel, latest_news[:5])
 
 bot.run(TOKEN)
