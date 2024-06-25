@@ -35,21 +35,26 @@ def get_latest_news():
         return []
 
     soup = BeautifulSoup(response.content, 'html.parser')
-    news_items = soup.find_all('div', class_='news__list--banner')
+    news_items = soup.find_all('li', class_='news__list--topics ic__topics--list')
 
     latest_news = []
     for item in news_items:
         try:
-            link_tag = item.find('a', class_='news__list--img')
-            title_tag = item.find('p', class_='news__list--title')
-            if link_tag and title_tag:
-                link = f"https://fr.finalfantasyxiv.com{link_tag['href']}"
-                image = link_tag.find('img')['src'] if link_tag.find('img') else None
-                title = title_tag.text.strip()
-                summary = item.find('p', class_='mdl-text__xs-m16').text.strip() if item.find('p', class_='mdl-text__xs-m16') else "Pas de résumé disponible."
-                date_tag = item.find('time')
-                date = date_tag.find('span').text if date_tag and date_tag.find('span') else None
-                latest_news.append((link, title, summary, image, date))
+            header = item.find('header', class_='news__list--header')
+            banner = item.find('div', class_='news__list--banner')
+            if header and banner:
+                link_tag = header.find('a', class_='news__list--title')
+                time_tag = header.find('time', class_='news__list--time')
+                image_tag = banner.find('a', class_='news__list--img')
+                summary_tag = banner.find('p', class_='mdl-text__xs-m16')
+                
+                if link_tag and time_tag and image_tag:
+                    link = f"https://fr.finalfantasyxiv.com{link_tag['href']}"
+                    image = image_tag.find('img')['src'] if image_tag.find('img') else None
+                    title = link_tag.text.strip()
+                    summary = summary_tag.text.strip() if summary_tag else "Pas de résumé disponible."
+                    date = time_tag.find('span').text if time_tag.find('span') else None
+                    latest_news.append((link, title, summary, image, date))
         except AttributeError:
             continue  # Ignore les éléments mal formés
 
