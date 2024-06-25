@@ -38,4 +38,4 @@ jobs:
         XIVAPI_KEY: ${{ secrets.XIVAPI_KEY }}
       run: |
         echo "Starting bot..."
-        python bot/main.py
+        python bot.py
