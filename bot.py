@@ -2,10 +2,11 @@ import discord
 from discord.ext import commands, tasks
 import requests
 from bs4 import BeautifulSoup
+import os
 
 # Ton token de bot Discord
-TOKEN = 'ton_token_discord'
-CHANNEL_ID = 123456789012345678  # Remplace par l'ID du canal où tu veux envoyer les news
+TOKEN = os.getenv('DISCORD_TOKEN')
+CHANNEL_ID = 1250809808429514868  # Remplace par l'ID du canal où tu veux envoyer les news
 
 # Spécifier les intentions
 intents = discord.Intents.default()
