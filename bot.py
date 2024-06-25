@@ -9,6 +9,9 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 XIVAPI_KEY = os.getenv("XIVAPI_KEY")
 CHANNEL_ID = "1250809808429514868"
 
+intents = discord.Intents.default()
+intents.messages = True
+
 bot = commands.Bot(command_prefix='!')
 
 # URL de la section des news en français sur le site Lodestone
