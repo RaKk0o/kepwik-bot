@@ -50,7 +50,8 @@ def get_latest_news():
                     # Extrait le résumé et l'image ici, si disponible
                     summary = item.find_next('div', class_='news__list--content').text.strip() if item.find_next('div', class_='news__list--content') else "Pas de résumé disponible."
                     image = item.find_next('img')['src'] if item.find_next('img') else None
-                    date = item.find_next('time')['datetime'] if item.find_next('time') else None
+                    time_tag = item.find_next('time')
+                    date = time_tag.find('span').text if time_tag and time_tag.find('span') else None
                     latest_news.append((news_id, tag.text.strip('[]'), title, summary, link, image, date))
         except AttributeError:
             continue  # Ignore les éléments mal formés
@@ -59,11 +60,11 @@ def get_latest_news():
 
 async def send_news_embed(channel, news):
     for news_id, tag, title, summary, link, image, date in news:
-        embed = discord.Embed(title=title, description=summary, url=link, timestamp=datetime.fromisoformat(date) if date else None)
+        embed = discord.Embed(title=title, description=summary, url=link, timestamp=datetime.strptime(date, '%d.%m.%Y') if date else None)
         embed.set_author(name=tag)
         if image:
             embed.set_image(url=image)
-        embed.set_footer(text=f"Publié le {datetime.fromisoformat(date).strftime('%d %b %Y %H:%M')}" if date else "Date non disponible")
+        embed.set_footer(text=f"Publié le {date}" if date else "Date non disponible")
         await channel.send(embed=embed)
 
 @tasks.loop(minutes=10)
