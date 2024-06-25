@@ -35,7 +35,7 @@ jobs:
     - name: Run bot
       env:
         DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-        XIVAPI_KEY: ${{ secrects.XIVAPI_KEY }}
+        XIVAPI_KEY: ${{ secrets.XIVAPI_KEY }}
       run: |
         echo "Starting bot..."
         python bot/main.py
