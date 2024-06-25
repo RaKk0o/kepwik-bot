@@ -1,7 +1,7 @@
 import discord
-from discord.ext import commands
-from pyxivapi import XIVAPIClient
-import asyncio
+from discord.ext import commands, tasks
+import requests
+from bs4 import BeautifulSoup
 import os
 
 # Ton token de bot Discord
