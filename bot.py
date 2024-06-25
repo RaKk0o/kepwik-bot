@@ -3,6 +3,7 @@ from discord.ext import commands, tasks
 import requests
 from bs4 import BeautifulSoup
 import os
+from datetime import datetime
 
 # Ton token de bot Discord
 TOKEN = os.getenv('DISCORD_TOKEN')
