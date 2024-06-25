@@ -10,9 +10,10 @@ XIVAPI_KEY = os.getenv("XIVAPI_KEY")
 CHANNEL_ID = "1250809808429514868"
 
 intents = discord.Intents.default()
-intents.messages = True
+intents.message_content = True
+intents.members = True
 
-bot = commands.Bot(command_prefix='!')
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 # URL de la section des news en français sur le site Lodestone
 LODSTONE_NEWS_URL = 'https://fr.finalfantasyxiv.com/lodestone/news/'
