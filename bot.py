@@ -59,4 +59,22 @@ async def check_news():
         last_news_id = latest_news_id
         await channel.send(f"Nouvelle news sur Lodestone: {title}\n{link}")
 
+@bot.command()
+async def ping(ctx):
+    await ctx.send('Pong! Le bot est en ligne et fonctionne correctement.')
+
+@bot.command()
+async def news(ctx):
+    latest_news = get_latest_news()
+    if not latest_news:
+        await ctx.send("Aucune nouvelle trouvée.")
+        return
+    
+    news_message = "Voici les 5 dernières nouvelles sur Lodestone :\n\n"
+    for news in latest_news[:5]:
+        news_id, title, link = news
+        news_message += f"{title}\n{link}\n\n"
+    
+    await ctx.send(news_message)
+
 bot.run(TOKEN)
