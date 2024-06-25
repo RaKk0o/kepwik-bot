@@ -26,17 +26,29 @@ async def on_ready():
     check_news.start()
 
 def get_latest_news():
-    response = requests.get(LODSTONE_NEWS_URL)
+    try:
+        response = requests.get(LODSTONE_NEWS_URL)
+        response.raise_for_status()  # Vérifie si la requête a réussi
+    except requests.RequestException as e:
+        print(f"Erreur lors de la récupération des nouvelles: {e}")
+        return []
+
     soup = BeautifulSoup(response.content, 'html.parser')
-    news_items = soup.find_all('li', class_='news__list--article')
+    news_items = soup.find_all('p', class_='news__list--title')
 
     latest_news = []
     for item in news_items:
-        link_tag = item.find('a')
-        news_id = link_tag['href'].split('/')[-1]
-        title = item.find('p', class_='news__list--title').text.strip()
-        link = f"https://fr.finalfantasyxiv.com{link_tag['href']}"
-        latest_news.append((news_id, title, link))
+        try:
+            tag = item.find('span', class_='news__list--tag')
+            if tag:
+                title = item.text.replace(tag.text, '').strip()
+                link_tag = item.find_parent('a')
+                if link_tag:
+                    link = f"https://fr.finalfantasyxiv.com{link_tag['href']}"
+                    news_id = link.split('/')[-1]
+                    latest_news.append((news_id, title, link))
+        except AttributeError:
+            continue  # Ignore les éléments mal formés
 
     return latest_news
 
