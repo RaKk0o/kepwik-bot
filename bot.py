@@ -2,10 +2,11 @@ import discord
 from discord.ext import commands
 from pyxivapi import XIVAPIClient
 import asyncio
+import os
 
 # Ton token de bot Discord
-TOKEN = 'ton_token_discord'
-XIVAPI_KEY = 'ta_clé_api'
+TOKEN = os.getenv("DISCORD_TOKEN")
+XIVAPI_KEY = os.getenv("XIVAPI_KEY")
 
 bot = commands.Bot(command_prefix='!')
 
